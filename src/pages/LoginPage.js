@@ -18,7 +18,10 @@ function LoginPage() {
             // show alert: the user's name is required 
         }
         else {
-            navigate("/order", { state: { userName } });
+            navigate("/order", { 
+                state: { userName },
+                replace: true
+            });
         }
     };
     return (
