@@ -18,7 +18,7 @@ function LoginPage() {
             // show alert: the user's name is required 
         }
         else {
-            navigate("/order", { 
+            navigate("/pizzaBuilder", { 
                 state: { userName },
                 replace: true
             });
