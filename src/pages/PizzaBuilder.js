@@ -1,19 +1,31 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useRef, useState, useEffect } from "react";
 const basePizza = { id: 1, name: "Base", price: 10 };
-const allToppings = [
-    { id: 1, name: "Pepperoni", price: 1.50 },
-    { id: 2, name: "Mushroom", price: 1.00 },
-    { id: 3, name: "Green Olives", price: 1.00 },
-    { id: 4, name: "Green Peppers", price: 1.00 },
-    { id: 5, name: "Double Cheese", price: 2.25 }
-];
 
 function PizzaBuilder() {
+    const [allToppings, setAllToppings] = useState([]);
     const [selectedToppings, setSelectedToppings] = useState([]); // Array of toppings'ID
     const location = useLocation();
     // const navigate = useNavigate();
     const userName = location.state?.userName || "guest";
+    // mock fetching toppings data 
+    useEffect(() => {
+        async function updateToppings() {
+            const fetchToppings = () => new Promise((resolveFn, rejectFn) => {
+                setTimeout(() => {resolveFn([
+                    { id: 1, name: "Pepperoni", price: 1.5 },
+                    { id: 2, name: "Mushroom", price: 1.0 },
+                    { id: 3, name: "Green Olives", price: 1.0 },
+                    { id: 4, name: "Green Peppers", price: 1.0 },
+                    { id: 5, name: "Double Cheese", price: 2.25 }
+                ])}, 500);
+            });
+            const response = await fetchToppings();
+            setAllToppings(response);
+        }
+        updateToppings();
+    }, []);
+
 
     const totalPrice = allToppings.filter(topping => selectedToppings.includes(topping.id))
         .reduce((sum, topping) => (sum = sum + topping.price), basePizza.price);

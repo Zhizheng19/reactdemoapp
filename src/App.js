@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import Home from './Home.js';
 import About from "./About.js";
 import LoginPage from "./pages/LoginPage.js";
+import PizzaBuilder from "./pages/PizzaBuilder.js";
 
 function App() {
   console.log("App called");
@@ -12,6 +13,7 @@ function App() {
       </nav>
       <Routes>
         <Route path='/' element={<Home />} />
+        <Route path='/pizzaBuilder' element={<PizzaBuilder/>} />
         <Route path='/about' element={<About />} />
         <Route path="/login" element={<LoginPage />}/>
       </Routes>
