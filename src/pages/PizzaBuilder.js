@@ -1,6 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useRef, useState, useEffect } from "react";
-const basePizza = { id: 1, name: "Base", price: 10 };
+import PizzaCanvas from "./pizzaCanvas";
+import "./PizzaBuilder.css";
+
+const basePizza = { id: 1, name: "Base", price: 10, image: "/images/basePizza.png" };
 
 function PizzaBuilder() {
     const [allToppings, setAllToppings] = useState([]);
@@ -12,13 +15,16 @@ function PizzaBuilder() {
     useEffect(() => {
         async function updateToppings() {
             const fetchToppings = () => new Promise((resolveFn, rejectFn) => {
-                setTimeout(() => {resolveFn([
-                    { id: 1, name: "Pepperoni", price: 1.5 },
-                    { id: 2, name: "Mushroom", price: 1.0 },
-                    { id: 3, name: "Green Olives", price: 1.0 },
-                    { id: 4, name: "Green Peppers", price: 1.0 },
-                    { id: 5, name: "Double Cheese", price: 2.25 }
-                ])}, 500);
+                setTimeout(() => {
+                    resolveFn([
+                        { id: 1, name: "Pepperoni", price: 1.5, image: "/images/pepperoni.png" },
+                        { id: 2, name: "Mushroom", price: 1.0, image: "/images/mushroom.png" },
+                        { id: 3, name: "Green Olives", price: 1.0, image: "/images/green olive.png" },
+                        { id: 4, name: "Green Peppers", price: 1.0, image: "/images/green pepper.png" },
+                        { id: 5, name: "Double Cheese", price: 2.25 }
+                    ])
+                }, 500);
+                
             });
             const response = await fetchToppings();
             setAllToppings(response);
@@ -40,13 +46,31 @@ function PizzaBuilder() {
                 [...prev, toppingId]
         )
     };
-    // console.log(selectedToppings);
+    console.log(selectedToppings);
     return (
-        <div>
+        <>
             <h2>Ciao, {userName}!</h2>
-            {/* <img src="images/basePizza.png" alt="Pizza"></img> */}
             <p>Your pizza comes with sauce and cheese. Add more toppings below:</p>
+            <PizzaCanvas
+                baseImage={basePizza.image}
+                toppingsImages={allToppings
+                    .filter(topping => selectedToppings.includes(topping.id) && topping.image)
+                    .map(topping=>topping.image) }
+            />
+
             {/* Display all available toppings */}
+            {/* {allToppings
+                .filter((t) => selectedToppings.includes(t.id))
+                .map((t) => (
+                    <img
+                        key={t.id}
+                        src={t.image}
+                        alt={t.name}
+                        className="pizza-layer"
+                        style={{ zIndex: 10 + t.id }}
+                    />
+                ))} */}
+                <br/>
             {allToppings.map(
                 (topping) => (
                     <ToppingCheckCard key={topping.id}
@@ -58,7 +82,7 @@ function PizzaBuilder() {
             )}
             <p>Total Price: ${totalPrice.toFixed(2)}</p>
             <button type="submit" name="MakePizza">Make It!</button>
-        </div>
+        </>
     );
 }
 
