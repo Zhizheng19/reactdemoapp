@@ -3,6 +3,7 @@ import Home from './Home.js';
 import About from "./About.js";
 import LoginPage from "./pages/LoginPage.js";
 import PizzaBuilder from "./pages/PizzaBuilder.js";
+import ConfirmPage from "./pages/ConfirmPage.js"
 
 function App() {
   console.log("App called");
@@ -15,7 +16,8 @@ function App() {
         <Route path='/' element={<Home />} />
         <Route path='/pizzaBuilder' element={<PizzaBuilder/>} />
         <Route path='/about' element={<About />} />
-        <Route path="/login" element={<LoginPage />}/>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/confirm" element={<ConfirmPage />} />
       </Routes>
     </BrowserRouter>
   );

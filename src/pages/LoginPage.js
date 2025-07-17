@@ -24,6 +24,8 @@ function LoginPage() {
             });
         }
     };
+
+    // recommand to use <form> for Login 
     return (
         <>
             <h2>Welcome to Domi Pizza Wagon</h2>

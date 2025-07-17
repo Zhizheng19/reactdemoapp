@@ -4,6 +4,8 @@ function PizzaCanvas({ baseImage, toppingsImages }) {
   console.log(toppingsImages)
   const canvasRef = useRef(null);
 
+  // Why do we use useEffect here?
+  // DOM is not mounted when the PizzaCanvas being called
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -21,7 +23,7 @@ function PizzaCanvas({ baseImage, toppingsImages }) {
     };
 
     const loadAndDraw = async () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // 1. Draw base
       const base = await loadImage(baseImage);
@@ -29,7 +31,7 @@ function PizzaCanvas({ baseImage, toppingsImages }) {
 
       const existingPositions = [];
       const safeMargin = 50; // padding from edge
-      const toppingRadius = 15;
+      const toppingRadius = 15; // set the same radius for all toppings for now
       const maxAttempts = 100;
 
       // 2. Draw each topping
@@ -44,7 +46,7 @@ function PizzaCanvas({ baseImage, toppingsImages }) {
           while (!placed && attempt < maxAttempts) {
             attempt++;
 
-            // position within safe circular area
+            // position within circular area
             const angle = Math.random() * 2 * Math.PI;
             const radius = (canvas.width / 2 - safeMargin) * Math.sqrt(Math.random());
             const x = canvas.width / 2 + radius * Math.cos(angle);
@@ -56,7 +58,7 @@ function PizzaCanvas({ baseImage, toppingsImages }) {
               const dx = pos.x - x;
               const dy = pos.y - y;
               const dist = Math.sqrt(dx * dx + dy * dy);
-              if (dist < toppingRadius * 2) {
+              if (dist < toppingRadius * 1.5) {
                 overlapping = true;
                 break;
               }
