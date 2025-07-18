@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import PizzaCanvas from "./pizzaCanvas";
 
 const basePizza = { id: 1, name: "Base", price: 10, image: "/images/basePizza.png" };
@@ -11,16 +11,19 @@ function PizzaBuilder() {
     const location = useLocation();
     const userName = location.state?.userName || "guest";
     const navigate = useNavigate();
+    const selectedToppingsObjects = useMemo(() =>
+        allToppings.filter((topping) => selectedToppingsId.includes(topping.id))
+        , [selectedToppingsId]);
+    const totalPrice = useMemo(() =>
+        selectedToppingsObjects
+            .reduce((sum, topping) => (sum = sum + topping.price), basePizza.price)
+        , [selectedToppingsObjects]);
     const handleSubmit = () => {
-        const selectedToppingsObjects = allToppings
-            .filter((topping) => selectedToppingsId.includes(topping.id));
+
         navigate("/confirm", {
             state: {
-                newOrder: {
-                    userName,
-                    pizza: { basePizza, selectedToppingsObjects },
-                    totalPrice
-                }
+                userName,
+                pizza: { base: basePizza, selectedToppings: selectedToppingsObjects, price: totalPrice }
             }
         });
     }
@@ -45,10 +48,6 @@ function PizzaBuilder() {
         }
         updateToppings();
     }, []);
-
-
-    const totalPrice = allToppings.filter(topping => selectedToppingsId.includes(topping.id))
-        .reduce((sum, topping) => (sum = sum + topping.price), basePizza.price);
 
     const changeSelectedToppings = (e) => {
         const toppingId = parseInt(e.target.value);

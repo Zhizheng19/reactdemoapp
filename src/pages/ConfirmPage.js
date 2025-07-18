@@ -1,17 +1,23 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import PizzaCanvas from "./pizzaCanvas";
 
 function ConfirmPage() {
     const location = useLocation();
-    const newOrder = location.state?.newOrder || {};
+    const {userName, pizza} = location.state || {};
+    console.log(userName, pizza);
+    const navigate = useNavigate();
+
+    // !userName || navigate("/login") ;
+    // !pizza || navigate(); 
+
     return (
         <>
             <h2>Order Confirmation</h2>
-            <p>Name: {newOrder.userName}</p>
+            <p>Name: {userName}</p>
 
             <PizzaCanvas
                 baseImage="/images/basePizza.png"
-                toppingsImages={newOrder.pizza.selectedToppingsObjects
+                toppingsImages={pizza.selectedToppings
                     .filter(t => t.image)
                     .map(t => t.image)}
             />
@@ -22,9 +28,9 @@ function ConfirmPage() {
                 <tbody>
                     <tr>
                         <td>Base</td>
-                        <td>${newOrder.pizza.basePizza.price.toFixed(2)}</td>
+                        <td>${pizza.base.price.toFixed(2)}</td>
                     </tr>
-                    {newOrder.pizza.selectedToppingsObjects.map((t) => (
+                    {pizza.selectedToppings.map((t) => (
                         <tr key={t.id}>
                             <td>{t.name}</td>
                             <td>${t.price.toFixed(2)}</td>
@@ -33,7 +39,8 @@ function ConfirmPage() {
                 </tbody>
             </table>
 
-            <p><strong>Total Price: ${newOrder.totalPrice?.toFixed(2)}</strong></p>
+            <p><strong>Total Price: ${pizza?.price.toFixed(2)}</strong></p>
+            {/* <button onClick={handleGoToPayment}>Place Order</button> */}
         </>
 
     );
