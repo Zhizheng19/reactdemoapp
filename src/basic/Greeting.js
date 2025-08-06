@@ -7,8 +7,9 @@ function Greeting() {
     return (
         <>
             <h2>Please enter your name:</h2>
-            <input type="text" placeholder="Enter your name" value={userName} 
-             onChange={handleChange} />  {/* uncontrolled without the value property, not recommanded*/}
+            {/* an uncontrolled comp if we don't use 'value' attribute in <input>, which is not recommanded*/}
+            <input type="text" placeholder="Enter your name" value={userName}  
+             onChange={handleChange} /> 
             <p>Hello, {userName || "stranger"} </p>
         </>
     );

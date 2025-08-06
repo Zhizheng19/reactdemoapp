@@ -1,56 +1,47 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useRef, useState, useEffect, useMemo } from "react";
+import usePizzaResources from "../hooks/usePizzaResources.js";
 import PizzaCanvas from "./pizzaCanvas";
-
-const basePizza = { id: 1, name: "Base", price: 10, image: "/images/basePizza.png" };
 
 function PizzaBuilder() {
     console.log("Pizza builder called");
-    const [allToppings, setAllToppings] = useState([]);
+    const {pizzaBase, toppings: allToppings, loaded, error} = usePizzaResources();
     const [selectedToppingsId, setSelectedToppingsId] = useState([]); // Array of toppings'ID
     const location = useLocation();
     const userName = location.state?.userName || "guest";
     const navigate = useNavigate();
+
+    console.log('pizzaBase:',pizzaBase, 'allToppings:', allToppings);
+    console.log('Selected Toppings:', selectedToppingsId);
+
+    console.time("useMemo:");
+    // use useMemo for saving the time for complex caluation
     const selectedToppingsObjects = useMemo(() =>
-        allToppings.filter((topping) => selectedToppingsId.includes(topping.id))
-        , [selectedToppingsId]);
+        allToppings?.filter((topping) => selectedToppingsId.includes(topping.id))
+        , [allToppings, selectedToppingsId]);
     const totalPrice = useMemo(() =>
         selectedToppingsObjects
-            .reduce((sum, topping) => (sum = sum + topping.price), basePizza.price)
+            ?.reduce((sum, topping) => (sum = sum + topping.price), pizzaBase.price)
         , [selectedToppingsObjects]);
-    const handleSubmit = () => {
+    console.timeEnd("useMemo:");
 
+    /*     console.time("wocache:");
+        const selectedToppingsObjects = allToppings.filter((topping) => selectedToppingsId.includes(topping.id));
+        const totalPrice = selectedToppingsObjects
+                .reduce((sum, topping) => (sum = sum + topping.price), pizzBase.price);
+        console.timeEnd("wocache:");
+     */
+    const handleSubmit = () => {
         navigate("/confirm", {
             state: {
                 userName,
-                pizza: { base: basePizza, selectedToppings: selectedToppingsObjects, price: totalPrice }
+                pizza: { base: pizzaBase, selectedToppings: selectedToppingsObjects, price: totalPrice }
             }
         });
     }
-    // mock fetching toppings data 
-    useEffect(() => {
-        async function updateToppings() {
-            const fetchToppings = () => new Promise((resolveFn, rejectFn) => {
-                setTimeout(() => {
-                    console.log("Toppings Loaded");
-                    resolveFn([
-                        { id: 1, name: "Pepperoni", price: 1.5, image: "/images/pepperoni.png" },
-                        { id: 2, name: "Mushroom", price: 1.0, image: "/images/mushroom.png" },
-                        { id: 3, name: "Green Olives", price: 1.0, image: "/images/green olive.png" },
-                        { id: 4, name: "Green Peppers", price: 1.0, image: "/images/green pepper.png" },
-                        { id: 5, name: "Double Cheese", price: 2.25 }
-                    ])
-                }, 500);
-
-            });
-            const response = await fetchToppings();
-            setAllToppings(response); // re-render the page
-        }
-        updateToppings();
-    }, []);
 
     const changeSelectedToppings = (e) => {
-        const toppingId = parseInt(e.target.value);
+        const toppingId = e.target.value;
         setSelectedToppingsId(
             (prev) => prev.includes(toppingId) ?
                 // delete the topping from the prev list
@@ -59,32 +50,45 @@ function PizzaBuilder() {
                 [...prev, toppingId]
         )
     };
-    console.log(`Selected Toppings:${selectedToppingsId}`);
-    return (
-        <>
-            <h2>Ciao, {userName}!</h2>
-            <p>Your pizza comes with sauce and cheese. Add more toppings below:</p>
-            <PizzaCanvas
-                baseImage={basePizza.image}
-                toppingsImages={allToppings
-                    .filter(topping => selectedToppingsId.includes(topping.id) && topping.image)
-                    .map(topping => topping.image)}
-            />
+    console.log('PizzaBuilder ending...');
+    if (!loaded) {
+        console.log("loading");
+        return <p>Loading</p>
+    }
+    if (error) {
+        console.log('error');
+        return <p>Error loading resources.</p>
+    }
 
-            {/* Display all available toppings */}
-            <br />
-            {allToppings.map(
-                (topping) => (
-                    <ToppingCheckCard key={topping.id}
-                        onChange={changeSelectedToppings}
-                        isSelected={selectedToppingsId.includes(topping.id)}
-                        topping={topping}
+    return (
+        <div className="page-container">
+            <div className="pizza-builder">
+                <h2>Ciao, {userName}!</h2>
+                <p className="pizza-description">Your pizza comes with sauce and cheese. Add more toppings below:</p>
+                <div className="canvas-container">
+                    <PizzaCanvas
+                        baseImage={pizzaBase.image}
+                        toppingsImages={allToppings
+                            .filter(topping => selectedToppingsId.includes(topping.id) && topping.image)
+                            .map(topping => topping.image)}
                     />
-                )
-            )}
-            <p>Total Price: ${totalPrice.toFixed(2)}</p>
-            <button onClick={handleSubmit}>Make It!</button>
-        </>
+                </div>
+                {/* Display all available toppings */}
+                <div className="topping-container">
+                    {allToppings.map(
+                        (topping) => (
+                            <ToppingCheckCard key={topping.id}
+                                onChange={changeSelectedToppings}
+                                isSelected={selectedToppingsId.includes(topping.id)}
+                                topping={topping}
+                            />
+                        )
+                    )}
+                </div>
+                <p className="total-price">Total Price: ${totalPrice.toFixed(2)}</p>
+                <button className="btn btn-large hover-glow" onClick={handleSubmit}>Make It!</button>
+            </div>
+        </div>
     );
 }
 
@@ -94,12 +98,14 @@ function ToppingCheckCard({ topping, onChange, isSelected }) {
     // useEffect(() => {renderCount.current += 1});
     // console.log(`ToppingCheckCard ${children} rendered ${renderCount.current} times`);
     const inputId = `topping-${topping.id}`;
+    console.log(inputId, topping, isSelected);
     return (
-        <>
-            <input id={inputId} type="checkbox" value={topping.id}
+        <label className="topping-card">
+            <input className="topping-checkbox" id={inputId} type="checkbox" value={topping.id}
                 onChange={onChange} checked={isSelected}></input>
-            <label htmlFor={inputId}>{topping.name}</label>
-        </>
+            <span className="topping-label" >{topping.name}</span>
+            <span className="topping-price">${topping.price.toFixed(2)}</span>
+        </label>
     );
 }
 

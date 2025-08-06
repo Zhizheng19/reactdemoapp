@@ -1,0 +1,66 @@
+{
+    "products": [
+        {
+            "id": 1,
+            "name": "Pizza",
+            "price": 10.00,
+            "type": "pizza",
+            "isAvailable": true,
+            "isCustomizable": true,
+            "createdTime": "2025-07-30T12:00:00Z",
+            "updatedTime": "2025-07-30T12:00:00Z"
+        },
+        {
+            "id": 2,
+            "name": "Coke",
+            "price": 1.99,
+            "type": "drink",
+            "isAvailable": true,
+            "isCustomizable": false,
+            "createdTime": "2025-07-30T12:00:00Z",
+            "updatedTime": "2025-07-30T12:00:00Z"
+        }
+    ],
+    "toppings": [
+        {
+            "id": 1,
+            "name": "Pepperoni",
+            "price": 1.5,
+            "isAvailable": true,
+            "createdTime": "2025-07-30T12:00:00Z",
+            "updatedTime": "2025-07-30T12:00:00Z"
+        },
+        {
+            "id": 2,
+            "name": "Green Olive",
+            "price": 1.0,
+            "isAvailable": true,
+            "createdTime": "2025-07-30T12:00:00Z",
+            "updatedTime": "2025-07-30T12:00:00Z"
+        },
+        {
+            "id": 3,
+            "name": "Mushroom",
+            "price": 1.0,
+            "isAvailable": true,
+            "createdTime": "2025-07-30T12:00:00Z",
+            "updatedTime": "2025-07-30T12:00:00Z"
+        },
+        {
+            "id": 4,
+            "name": "Green Pepper",
+            "price": 1.0,
+            "isAvailable": true,
+            "createdTime": "2025-07-30T12:00:00Z",
+            "updatedTime": "2025-07-30T12:00:00Z"
+        },
+        {
+            "id": 5,
+            "name": "Double Cheese",
+            "price": 2.25,
+            "isAvailable": true,
+            "createdTime": "2025-07-30T12:00:00Z",
+            "updatedTime": "2025-07-30T12:00:00Z"
+        }
+    ]
+}

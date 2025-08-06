@@ -1,0 +1,33 @@
+{
+  "pizzaBase": {
+    "image":"/images/pizza_base.png",
+    "size": 300
+  },
+  "toppings": [
+    {
+    "name": "pepperoni",
+    "image": "/images/pepperoni.png",
+    "radius": 18
+  },
+  {
+    "name": "mushroom",
+    "image": "/images/mushroom.png",
+    "radius": 14
+  },
+  {
+    "name": "green_olive",
+    "image": "/images/green_olive.png",
+    "radius": 12
+  },
+  {
+    "name": "green_pepper",
+    "image": "/images/green_pepper.png",
+    "radius": 12
+  },
+  {
+    "name": "double_cheese",
+    "image": "/images/double_cheese.png",
+    "radius": 20
+  }
+  ]
+}

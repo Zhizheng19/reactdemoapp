@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Greeting from "./basic/Greeting";
 
 function Home() {
-    console.log('Home Called');
+    // console.log('Home Called');
     // const result = useState("hello"); 
     // console.log(result);  // 输出：["hello", BoundFunctionObject]
     // useEffect(() => {
@@ -16,7 +16,7 @@ function Home() {
     useEffect(() => {
         const msg = `count changed: ${count}`;
         console.log(msg);
-        document.title = msg;
+        // document.title = msg;
         return (() => {
             console.log('Count useEffect cleared');
         });
