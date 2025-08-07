@@ -1,15 +1,15 @@
 import { useRef, useEffect } from "react";
 
-function PizzaCanvas({ baseImage, toppingsImages }) {
-  console.log(toppingsImages)
+function PizzaCanvas({ baseImage, baseSize,toppings }) {
+  console.log("PizzaCanvas has toppings:", toppings)
   const canvasRef = useRef(null);
 
   // Why do we use useEffect here?
   // DOM is not mounted when the PizzaCanvas being called
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
 
+    const ctx = canvas.getContext("2d");
     const loadImage = (src) => {
       return new Promise((resolve, reject) => {
         const img = new Image();
@@ -27,16 +27,16 @@ function PizzaCanvas({ baseImage, toppingsImages }) {
 
       // 1. Draw base
       const base = await loadImage(baseImage);
-      ctx.drawImage(base, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(base, 0, 0, baseSize, baseSize);
 
       const existingPositions = [];
       const safeMargin = 50; // padding from edge
-      const toppingRadius = 15; // set the same radius for all toppings for now
+      // const toppingRadius = 15; // set the same radius for all toppings for now
       const maxAttempts = 100;
 
       // 2. Draw each topping
-      for (const toppingImage of toppingsImages) {
-        const img = await loadImage(toppingImage);
+      for (const t of toppings) {
+        const img = await loadImage(t.image);
         const count = Math.floor(Math.random() * 3) + 8;
 
         for (let i = 0; i < count; i++) {
@@ -58,7 +58,7 @@ function PizzaCanvas({ baseImage, toppingsImages }) {
               const dx = pos.x - x;
               const dy = pos.y - y;
               const dist = Math.sqrt(dx * dx + dy * dy);
-              if (dist < toppingRadius * 1.5) {
+              if (dist < t.radius * 1.5) {
                 overlapping = true;
                 break;
               }
@@ -70,7 +70,7 @@ function PizzaCanvas({ baseImage, toppingsImages }) {
               ctx.save();
               ctx.translate(x, y);
               ctx.rotate(rotation);
-              ctx.drawImage(img, -toppingRadius, -toppingRadius, toppingRadius * 2, toppingRadius * 2);
+              ctx.drawImage(img, -t.radius, -t.radius, t.radius * 2, t.radius * 2);
               ctx.restore();
 
               existingPositions.push({ x, y });
@@ -82,9 +82,9 @@ function PizzaCanvas({ baseImage, toppingsImages }) {
     };
 
     loadAndDraw();
-  }, [toppingsImages, baseImage]);
+  }, [toppings, baseImage]);
 
-  return <canvas ref={canvasRef} width={300} height={300}></canvas>;
+  return <canvas ref={canvasRef} width={baseSize} height={baseSize} ></canvas>;
 }
 
 export default PizzaCanvas;

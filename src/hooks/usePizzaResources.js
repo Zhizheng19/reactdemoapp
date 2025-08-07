@@ -69,6 +69,7 @@ export default function usePizzaResources() {
 
 function toSnakeCase(str) {
     return str
+        .trim()
         .replace(/[\s\-]+/g, '_')               // space or dash -> underscore
         .toLowerCase();
 }

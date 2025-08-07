@@ -9,7 +9,7 @@ function PizzaBuilder() {
     const [selectedToppingsId, setSelectedToppingsId] = useState([]); // Array of toppings'ID
     const location = useLocation();
     const userName = location.state?.userName || "guest";
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     console.log('pizzaBase:',pizzaBase, 'allToppings:', allToppings);
     console.log('Selected Toppings:', selectedToppingsId);
@@ -68,9 +68,9 @@ function PizzaBuilder() {
                 <div className="canvas-container">
                     <PizzaCanvas
                         baseImage={pizzaBase.image}
-                        toppingsImages={allToppings
-                            .filter(topping => selectedToppingsId.includes(topping.id) && topping.image)
-                            .map(topping => topping.image)}
+                        baseSize={pizzaBase.size}
+                        toppings={allToppings
+                            .filter(topping => selectedToppingsId.includes(topping.id) && topping.image)}
                     />
                 </div>
                 {/* Display all available toppings */}
