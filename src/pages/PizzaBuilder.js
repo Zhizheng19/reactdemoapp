@@ -1,28 +1,35 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useRef, useState, useEffect, useMemo } from "react";
 import usePizzaResources from "../hooks/usePizzaResources.js";
-import PizzaCanvas from "./pizzaCanvas";
+import PizzaCanvas from "./PizzaCanvas.js";
+import { useCart } from "../context/CartContext.js";
 
 function PizzaBuilder() {
-    console.log("Pizza builder called");
-    const {pizzaBase, toppings: allToppings, loaded, error} = usePizzaResources();
+    if (process.env.NODE_ENV === "development") {
+        console.log("Pizza builder called");
+    }
+    const { pizzaBase, toppings: allToppings, loaded, error } = usePizzaResources();
     const [selectedToppingsId, setSelectedToppingsId] = useState([]); // Array of toppings'ID
     const location = useLocation();
     const userName = location.state?.userName || "guest";
     // const navigate = useNavigate();
-
-    console.log('pizzaBase:',pizzaBase, 'allToppings:', allToppings);
-    console.log('Selected Toppings:', selectedToppingsId);
+    if (process.env.NODE_ENV === "development") {
+        console.log('pizzaBase:', pizzaBase, 'allToppings:', allToppings);
+        console.log('Selected Toppings:', selectedToppingsId);
+    }
 
     console.time("useMemo:");
     // use useMemo for saving the time for complex caluation
     const selectedToppingsObjects = useMemo(() =>
-        allToppings?.filter((topping) => selectedToppingsId.includes(topping.id))
+        loaded && allToppings
+            ? allToppings.filter((topping) => selectedToppingsId.includes(topping.id)) 
+            : []
         , [allToppings, selectedToppingsId]);
     const totalPrice = useMemo(() =>
-        selectedToppingsObjects
-            ?.reduce((sum, topping) => (sum = sum + topping.price), pizzaBase.price)
-        , [selectedToppingsObjects]);
+        loaded && selectedToppingsObjects && pizzaBase?
+        selectedToppingsObjects.reduce((sum, topping) => (sum = sum + topping.price), pizzaBase.price)
+        : 0
+        , [selectedToppingsObjects, pizzaBase]);
     console.timeEnd("useMemo:");
 
     /*     console.time("wocache:");
@@ -31,15 +38,21 @@ function PizzaBuilder() {
                 .reduce((sum, topping) => (sum = sum + topping.price), pizzBase.price);
         console.timeEnd("wocache:");
      */
+    const { addToCart } = useCart();
     const handleSubmit = () => {
-        navigate("/confirm", {
-            state: {
-                userName,
-                pizza: { base: pizzaBase, selectedToppings: selectedToppingsObjects, price: totalPrice }
-            }
-        });
+        const newPizza = {
+            base: pizzaBase,
+            selectedToppings: selectedToppingsObjects,
+            price: totalPrice
+        };
+        addToCart(newPizza);
+        /*         navigate("/confirm", {
+                    state: {
+                        userName,
+                        pizza: { base: pizzaBase, selectedToppings: selectedToppingsObjects, price: totalPrice }
+                    }
+                }); */
     }
-
     const changeSelectedToppings = (e) => {
         const toppingId = e.target.value;
         setSelectedToppingsId(
@@ -50,7 +63,9 @@ function PizzaBuilder() {
                 [...prev, toppingId]
         )
     };
-    console.log('PizzaBuilder ending...');
+    if (process.env.NODE_ENV === "development") {
+        console.log('PizzaBuilder ending...');
+    }
     if (!loaded) {
         console.log("loading");
         return <p>Loading</p>
@@ -59,7 +74,6 @@ function PizzaBuilder() {
         console.log('error');
         return <p>Error loading resources.</p>
     }
-
     return (
         <div className="page-container">
             <div className="pizza-builder">
@@ -69,8 +83,7 @@ function PizzaBuilder() {
                     <PizzaCanvas
                         baseImage={pizzaBase.image}
                         baseSize={pizzaBase.size}
-                        toppings={allToppings
-                            .filter(topping => selectedToppingsId.includes(topping.id) && topping.image)}
+                        toppings={selectedToppingsObjects}
                     />
                 </div>
                 {/* Display all available toppings */}
@@ -86,7 +99,7 @@ function PizzaBuilder() {
                     )}
                 </div>
                 <p className="total-price">Total Price: ${totalPrice.toFixed(2)}</p>
-                <button className="btn btn-large hover-glow" onClick={handleSubmit}>Make It!</button>
+                <button className="btn btn-large hover-glow" onClick={handleSubmit}>Add To Cart</button>
             </div>
         </div>
     );
