@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { createRoutesFromChildren, Form, useNavigate } from "react-router-dom";
 
 function LoginPage() {
@@ -19,7 +19,7 @@ function LoginPage() {
             // show alert: the user's name is required 
         }
         else {
-            navigate("/pizzaBuilder", {
+            navigate("/pizza-builder", {
                 state: { userName },
                 replace: true
             });

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import PizzaCanvas from "./pizzaCanvas";
+import PizzaCanvas from "./PizzaCanvas";
 
 function ConfirmPage() {
     const location = useLocation();

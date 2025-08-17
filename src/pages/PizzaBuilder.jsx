@@ -1,8 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useRef, useState, useEffect, useMemo } from "react";
-import usePizzaResources from "../hooks/usePizzaResources.js";
-import PizzaCanvas from "./PizzaCanvas.js";
-import { useCart } from "../context/CartContext.js";
+import usePizzaResources from "../hooks/usePizzaResources";
+import PizzaCanvas from "./PizzaCanvas";
+import { useCart } from "../context/CartContext";
+import Modal from "../components/Modal";
 
 function PizzaBuilder() {
     if (process.env.NODE_ENV === "development") {
@@ -10,9 +11,12 @@ function PizzaBuilder() {
     }
     const { pizzaBase, toppings: allToppings, loaded, error } = usePizzaResources();
     const [selectedToppingsId, setSelectedToppingsId] = useState([]); // Array of toppings'ID
+    const [showGoToCartModal, setShowGoToCartModal] = useState(false);
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [errorMessage, setErrorMessage] = useState();
     const location = useLocation();
     const userName = location.state?.userName || "guest";
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     if (process.env.NODE_ENV === "development") {
         console.log('pizzaBase:', pizzaBase, 'allToppings:', allToppings);
         console.log('Selected Toppings:', selectedToppingsId);
@@ -22,13 +26,13 @@ function PizzaBuilder() {
     // use useMemo for saving the time for complex caluation
     const selectedToppingsObjects = useMemo(() =>
         loaded && allToppings
-            ? allToppings.filter((topping) => selectedToppingsId.includes(topping.id)) 
+            ? allToppings.filter((topping) => selectedToppingsId.includes(topping.id))
             : []
         , [allToppings, selectedToppingsId]);
     const totalPrice = useMemo(() =>
-        loaded && selectedToppingsObjects && pizzaBase?
-        selectedToppingsObjects.reduce((sum, topping) => (sum = sum + topping.price), pizzaBase.price)
-        : 0
+        loaded && selectedToppingsObjects && pizzaBase ?
+            selectedToppingsObjects.reduce((sum, topping) => (sum = sum + topping.price), pizzaBase.price)
+            : 0
         , [selectedToppingsObjects, pizzaBase]);
     console.timeEnd("useMemo:");
 
@@ -39,13 +43,26 @@ function PizzaBuilder() {
         console.timeEnd("wocache:");
      */
     const { addToCart } = useCart();
-    const handleSubmit = () => {
+    const handleAddToCart = async () => {
         const newPizza = {
             base: pizzaBase,
             selectedToppings: selectedToppingsObjects,
             price: totalPrice
         };
-        addToCart(newPizza);
+
+        try {
+            const result = await addToCart(newPizza);
+            if (result.success) {
+                setShowGoToCartModal(true);
+            } else {
+                setErrorMessage(result.error || "Failed to add your pizza to cart");
+                setShowErrorModal(true);
+            }
+        } catch (e) {
+            setErrorMessage("Network error, please try again");
+            setShowErrorModal(true);
+        }
+
         /*         navigate("/confirm", {
                     state: {
                         userName,
@@ -68,7 +85,7 @@ function PizzaBuilder() {
     }
     if (!loaded) {
         console.log("loading");
-        return <p>Loading</p>
+        return (<p>Loading</p>);
     }
     if (error) {
         console.log('error');
@@ -99,7 +116,32 @@ function PizzaBuilder() {
                     )}
                 </div>
                 <p className="total-price">Total Price: ${totalPrice.toFixed(2)}</p>
-                <button className="btn btn-large hover-glow" onClick={handleSubmit}>Add To Cart</button>
+                <button className="btn btn-large hover-glow" onClick={handleAddToCart}>Add To Cart</button>
+                {showGoToCartModal && (
+                    <Modal onClose={() => setShowGoToCartModal(false)}>
+                        <h2 className="text-lg font-bold mb-4">
+                            Pizza added to your cart!
+                        </h2>
+
+                        <button className="flex mt-4 justify-end bg-blue-500 text-white px-4 py-2 rounded" onClick={() => navigate("/cart")} >
+                            Go to Cart
+                        </button>
+                        {/* <button className="bg-gray-300 px-4 py-2 rounded" onClick={()=>setShowGoToCartModal(false)}></button> */}
+                    </Modal>
+                )}
+                {showErrorModal && (
+                    <Modal onClose={()=>{ setShowErrorModal(false)}}>
+                        <h2 className="text-lg font-bold mb-4 text-red-600">
+                            Error
+                        </h2>
+                        <p>{errorMessage}</p>
+                        <div className="mt-4 flex justify-end">
+                            <button className="-gray-300 px-4 py-2 rounded" onClick={() => setShowErrorModal(false)} >
+                                Close
+                            </button>
+                        </div>
+                    </Modal>
+                )}
             </div>
         </div>
     );
