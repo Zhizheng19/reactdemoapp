@@ -5,15 +5,15 @@ import LoginPage from "./pages/LoginPage";
 import PizzaBuilder from "./pages/PizzaBuilder";
 import ConfirmPage from "./pages/ConfirmPage";
 import { CartProvider } from "./context/CartContext";
-import "./App.css";
+
 
 function App() {
   console.log("App called");
   return (
      <div className="app-container">
       <BrowserRouter>
-        <nav>
-          <Link to='/login'> Log In</Link>
+        <nav className="w-full p-4">
+          <Link to='/login'className="text-blue-900 font-semibold hover:underline"> Log In</Link>
         </nav>
         <CartProvider>
           <Routes>
